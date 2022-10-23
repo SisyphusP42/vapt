@@ -1,0 +1,31 @@
+$dObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+
+$PDC = ($dObj.PdcRoleOwner).Name
+
+$Search_String = "LDAP://"
+
+$Search_String += $PDC + "/"
+
+$DName = "DC=$($dObj.Name.Replace('.', ',DC='))"
+
+$Search_String += $DName
+
+$Search = New-Object System.DirectoryServices.DirectorySearcher([ADSI]$Search_String)
+
+$objDomain = New-Object System.DirectoryServices.DirectoryEntry
+
+$Search.SearchRoot = $objDomain
+
+$Search.filter="samAccountType=805306368"
+
+$output = $Search.FindAll()
+
+Foreach($obj in $output)
+{
+    Foreach($property in $obj.Properties)
+    {
+        $property
+    }
+    
+    Write-Host "**********************************"
+}
